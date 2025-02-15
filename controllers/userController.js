@@ -12,16 +12,14 @@ const registerUser = asyncHandler(async (req, res) =>
         const {username,email,password} = req.body;
 
         if (!username || !email || !password) {
-            res.status(400);
-            throw new Error("All fields are mandatory!");
+            return res.status(400).json({ message: "All fields are mandatory!" });
         }
 
         const userAvailable = await User.findOne({email});
         // console.log(userAvailable);
 
         if (userAvailable) {
-            res.status(400);
-            throw new Error("User already register");
+            return res.status(400).json({ message: "User already registered" });
         }
 
         //Hash password
@@ -34,14 +32,11 @@ const registerUser = asyncHandler(async (req, res) =>
         
         // console.log("Hashed password", hashedPassword);
         if (user) {
-            res.status(201);
-            res.json({_id: user.id, email: user.email });
+            res.status(201).json({_id: user.id, email: user.email, message: "Register the user" });
         }
         else {
-            res.status(400);
-            throw new Error("User data is not valid");
+            return res.status(400).json({ message: "User data is not valid" });
         }
-        res.json({ message: "Register the user" });
     } 
     catch (error) {
         console.error("Error:", error);
@@ -53,36 +48,41 @@ const registerUser = asyncHandler(async (req, res) =>
 //@desc Login user
 //@rout POST all /api/users/login
 //@access public
-const loginUser = asyncHandler(async (req, res) => 
-{
-    const {email, password} = req.body;
-    if (!email || !password) {
-        res.status(400);
-        throw new Error("All fielsd are mandatory!");
-    }
+const loginUser = asyncHandler(async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
-    
-    if (user && (await bcrypt.compare(password, user.password))) { //compare password with hashedpassword
-        const accessToken = jwt.sign(
-            {
-                user: {
-                    username: user.username,
-                    email: user.email,
-                    id: user.id,
+        if (!email || !password) {
+            return res.status(400).json({ message: "All fields are mandatory!" });
+        }
+
+        const user = await User.findOne({ email });
+
+        if (user && (await bcrypt.compare(password, user.password))) {
+            // Generate JWT Token
+            const accessToken = jwt.sign(
+                {
+                    user: {
+                        username: user.username,
+                        email: user.email,
+                        id: user.id,
+                    },
                 },
-            },
-            process.env.ACCESS_TOKEN_SECERT,
-            {
-                expiresIn: "20m",
-                issuer: "Ronir"
-            }
-        );
-        res.status(200).json({ accessToken, id: user.id })
-    }
-    else {
-        res.status(401);
-        throw new Error("email or password is not valid");
+                process.env.ACCESS_TOKEN_SECRET,
+                {
+                    expiresIn: "20m",
+                    issuer: "Ronir",
+                }
+            );
+
+            return res.status(200).json({ accessToken, id: user.id });
+        } else {
+            return res.status(401).json({ message: "Email or password is not valid" });
+        }
+
+    } catch (error) {
+        console.error("Error:", error);
+        return res.status(500).json({ message: "Server Error" });
     }
 });
 

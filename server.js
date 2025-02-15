@@ -18,6 +18,7 @@ app.use(cors());
 app.use(express.json()); //use in-build middle ware 
 app.use("/api/ronir", require("./routes/ronirRoutes")); // known as midel ware
 app.use("/api/users", require("./routes/userRoutes")); // user will have token to use it.
+app.use("/api/ezymade", require("./routes/ezymadeRoutes")); // user for Ezymade
 app.use(errorHandler); //custom middle ware for error handler (json)
 
 app.listen(port, () => {
