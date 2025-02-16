@@ -36,7 +36,7 @@ const ezymadeData = asyncHandler(async (req, res) => {
         });
 
         res.status(201).json({
-            message: "Data saved successfully!",
+            message: "Welcome to Ezymade!",
             data: exymadeEntry
         });
     } catch (error) {

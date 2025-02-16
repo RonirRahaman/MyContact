@@ -10,10 +10,12 @@ const exymadeSchema = mongoose.Schema(
         name: {
             type: String,
             required: [true, "Please add the contact name"],
+            maxlength: [50, "Name cannot exceed 50 characters"],
         },
         email: {
             type: String,
             required: [true, "Please add the contact email address"],
+            maxlength: [100, "Email cannot exceed 100 characters"],
         },
         phone: {
             type: String,
